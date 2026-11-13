@@ -1,3 +1,7 @@
+import argparse
+import sys
+
+
 def sort_on_median(keys):
 
     if len(keys)<=1:
@@ -122,23 +126,51 @@ def write_bmp(path,bmp,new_pixels):
         f.write(data)
 
 
-if __name__=="__main__":
-    bmp_path = "17-Семин_К/shuffled.bmp"
-    keys_path = "17-Семин_К/keys.txt"
-    newbmp_path = "17-Семин_К/restore.bmp"
+def main():
+    # bmp_path = "17-Семин_К/shuffled.bmp"
+    # keys_path = "17-Семин_К/keys.txt"
+    # newbmp_path = "17-Семин_К/restored.bmp"
 
 
+    # try:
+    #     bmp = read_bmp(bmp_path)
+    #     keys = read_keys(keys_path)
+
+    #     if len(keys) != bmp["n"]:
+    #         raise ValueError(f"Ключей {len(keys)} не совпадает с пикселями {bmp['n']}")
+
+    #     sorted_keys = sort_on_median(keys)
+    #     new_pixels= sort_bmp(bmp["pixels"],sorted_keys)
+    #     write = write_bmp(newbmp_path,bmp,new_pixels)
+    # except Exception as e:
+    #     print(f"ошибка {e}")
+
+    parser = argparse.ArgumentParser()
+    parser.add_argument("--bmp", required=True)
+    parser.add_argument("--keys", required=True)
+    parser.add_argument("--out", required=True)
+    parser.add_argument("--bench", type=int, default=0)  # пока не используется
+    args = parser.parse_args()
+ 
+    bmp_path = args.bmp
+    keys_path = args.keys
+    newbmp_path = args.out
+ 
     try:
         bmp = read_bmp(bmp_path)
         keys = read_keys(keys_path)
-
+ 
         if len(keys) != bmp["n"]:
             raise ValueError(f"Ключей {len(keys)} не совпадает с пикселями {bmp['n']}")
-
+ 
         sorted_keys = sort_on_median(keys)
         new_pixels= sort_bmp(bmp["pixels"],sorted_keys)
         write = write_bmp(newbmp_path,bmp,new_pixels)
     except Exception as e:
         print(f"ошибка {e}")
+        sys.exit(1)
 
 
+if __name__=="__main__":
+   
+    main()
