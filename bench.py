@@ -1,12 +1,11 @@
-
-
 import random
+import statistics
 import time
 
 from main import sort_on_median
 
 
-def make_keys(n, seed=1):
+def make_keys(n, seed=42):
     random.seed(seed)
     keys = []
     for i in range(n):
@@ -21,34 +20,34 @@ def time_one(func, keys):
     return t1 - t0
 
 
+def measure(func, keys, repeats):
+    
+    func(list(keys))
+
+    times = []
+    for _ in range(repeats):
+        times.append(time_one(func, list(keys)))   # каждый раз свежая копия
+
+    return statistics.median(times), min(times), max(times)
+
+
 def main():
-    sizes = [ 40000, 55696, 78400,160000,313600,701406]
-    repeats = 3  
+    sizes = [40000, 55696, 78400, 160000, 249480, 313600, 701406]
+    repeats = 7
 
-    print(f"{'n':>7} | {'моя, c':>10} | {'sorted, c':>10}")
-    print("-" * 31)
-
-
+    print(f"{'n':>7} | {'моя, c':>8} | {'мин':>8} | {'макс':>8} | {'разброс %':>9} | {'sorted, c':>9} | {'во сколько раз':>14}")
+    print("-" * 82)
 
     for n in sizes:
-        my_best = None
-        lib_best = None
+        keys = make_keys(n)
 
-        for _ in range(repeats):
-            keys = make_keys(n)
+        my_med, my_min, my_max = measure(sort_on_median, keys, repeats)
+        lib_med, lib_min, lib_max = measure(lambda k: sorted(k, key=lambda x: x[0]), keys, repeats)
 
-            t = time_one(sort_on_median, list(keys))
-            if my_best is None or t < my_best:
-                my_best = t
+        spread = (my_max - my_min) / my_med * 100
+        ratio = my_med / lib_med
 
-            t = time_one(lambda k: sorted(k, key=lambda x: x[0]), list(keys))
-            if lib_best is None or t < lib_best:
-                lib_best = t
-
-        
-
-        print(f"{n:>7} | {my_best:>10.4f} | {lib_best:>10.4f}")
-
+        print(f"{n:>7} | {my_med:>8.4f} | {my_min:>8.4f} | {my_max:>8.4f} | {spread:>9.1f} | {lib_med:>9.4f} | {ratio:>14.2f}")
 
 
 if __name__ == "__main__":

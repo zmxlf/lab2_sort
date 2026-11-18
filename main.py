@@ -1,5 +1,7 @@
 import argparse
 import sys
+import time
+import statistics
 
 
 
@@ -157,20 +159,41 @@ def main():
     bmp_path = args.bmp
     keys_path = args.keys
     newbmp_path = args.out
-    # if args.bench:
     
-    #     run_bench()
- 
     try:
         bmp = read_bmp(bmp_path)
         keys = read_keys(keys_path)
  
         if len(keys) != bmp["n"]:
             raise ValueError(f"Ключей {len(keys)} не совпадает с пикселями {bmp['n']}")
- 
-        sorted_keys = sort_on_median(keys)
+
+        
+        # --- БЛОК БЕНЧМАРКА ---
+        if args.bench > 0:
+            times = []
+            for _ in range(args.bench):
+                t0 = time.perf_counter()
+                sorted_keys = sort_on_median(keys)
+                t1 = time.perf_counter()
+                times.append((t1 - t0) * 1000)
+
+            median_time = statistics.median(times)
+            min_time = min(times)
+            max_time = max(times)
+            checksum = sum(k[0] for k in keys)
+
+            
+            print(f"Медиана сортировки: {median_time:.3f} мс")
+            print(f"Мин: {min_time:.3f} мс, Макс: {max_time:.3f} мс")
+            print(f"Контрольная сумма (сумма ключей): {checksum}")
+        else:
+            
+            sorted_keys = sort_on_median(keys)
+        
         new_pixels= sort_bmp(bmp["pixels"],sorted_keys)
         write_bmp(newbmp_path,bmp,new_pixels)
+
+
     except Exception as e:
         print(f"ошибка {e}")
         sys.exit(1)
