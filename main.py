@@ -2,6 +2,8 @@ import argparse
 import sys
 
 
+
+
 def sort_on_median(keys):
 
     if len(keys)<=1:
@@ -155,6 +157,9 @@ def main():
     bmp_path = args.bmp
     keys_path = args.keys
     newbmp_path = args.out
+    # if args.bench:
+    
+    #     run_bench()
  
     try:
         bmp = read_bmp(bmp_path)
@@ -165,7 +170,7 @@ def main():
  
         sorted_keys = sort_on_median(keys)
         new_pixels= sort_bmp(bmp["pixels"],sorted_keys)
-        write = write_bmp(newbmp_path,bmp,new_pixels)
+        write_bmp(newbmp_path,bmp,new_pixels)
     except Exception as e:
         print(f"ошибка {e}")
         sys.exit(1)
